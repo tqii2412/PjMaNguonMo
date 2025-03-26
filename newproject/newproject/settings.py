@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
-    'accounts',
+   
 ]
 
 MIDDLEWARE = [
@@ -136,3 +138,6 @@ MEDIA_URL = '/media/'
 
 # MEDIA_ROOT là đường dẫn đến thư mục trong hệ thống tệp của bạn nơi các tệp tải lên sẽ được lưu trữ.
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# User
+AUTH_USER_MODEL = 'api.User'

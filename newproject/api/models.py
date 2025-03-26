@@ -1,14 +1,20 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import *
+from django.contrib.auth.models import AbstractUser
 
 # Model Người Dùng
-class User(models.Model):
-    name = models.CharField(max_length=100)
-    phonenb = models.CharField(max_length=20)  # Số điện thoại
-    password = models.CharField(max_length=255)
+class User(AbstractUser):
+    username = models.CharField(max_length=20, unique=True)  # Sử dụng username để đăng nhập
+    name = models.CharField(max_length=100)  # Tên người dùng
+    phonenb = models.CharField(max_length=20, unique=True)  # Số điện thoại duy nhất
 
     def __str__(self):
         return self.name
+
+    # Đặt lại USERNAME_FIELD về mặc định là 'username'
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['name', 'phonenb']  # Các trường bắt buộc khi tạo user qua lệnh createsuperuser
 
 # Model Admin
 class Admin(models.Model):
