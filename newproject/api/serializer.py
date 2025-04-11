@@ -55,27 +55,51 @@ class AdminSerializer(serializers.ModelSerializer):
         model = Admin
         fields = '__all__'
 
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = '__all__'
-
+# Serializer Sản phẩm:
 class ProductDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductDetail
-        fields = '__all__'
+        fields = ['description', 'origin', 'image', 'nutrition_info']
 
-class CartSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cart
-        fields = '__all__'
+class ProductSerializer(serializers.ModelSerializer):
+    detail = ProductDetailSerializer()  # Lồng serializer cho chi tiết sản phẩm
 
-class OrderSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Order
-        fields = '__all__'
+        model = Product
+        fields = ['id', 'name', 'price', 'quantity', 'category', 'detail']
 
-class OrderItemSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        # Tách dữ liệu 'detail' từ validated_data
+        detail_data = validated_data.pop('detail')
+        
+        # Tạo sản phẩm mới
+        product = Product.objects.create(**validated_data)
+        
+        # Tạo chi tiết sản phẩm liên kết với sản phẩm vừa tạo
+        ProductDetail.objects.create(product=product, **detail_data)
+        
+        return product
+
+
+# Serializer CartOrder, CartOrderDetail, Payment
+class CartOrderItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OrderItem
-        fields = '__all__'
+        model = CartOrderItem
+        fields = ['product', 'quantity', 'price']
+
+class CartOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartOrder
+        fields = ['id', 'user', 'total_price', 'status', 'created_at', 'updated_at']
+
+class CartOrderDetailSerializer(serializers.ModelSerializer):
+    items = CartOrderItemSerializer(many=True)
+
+    class Meta:
+        model = CartOrder
+        fields = ['id', 'user', 'total_price', 'status', 'created_at', 'updated_at', 'items']
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ['order', 'payment_method', 'payment_status', 'paid_amount', 'payment_date']

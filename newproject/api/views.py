@@ -1,9 +1,11 @@
 from rest_framework.views import APIView  # Import APIView cho class-based views
 from rest_framework.response import Response
 from rest_framework import status
-from .serializer import UserSerializer, RegisterSerializer, LoginSerializer  # Sửa lại tên file nếu cần
+from .serializer import UserSerializer, RegisterSerializer, LoginSerializer, ProductSerializer, CartOrderSerializer, CartOrderDetailSerializer, PaymentSerializer  # Sửa lại tên file nếu cần
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model 
+from rest_framework.permissions import IsAuthenticated
+from .models import *
 
 # newproject/api/views.py
 User = get_user_model()
@@ -43,3 +45,39 @@ class UserDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except user.DoesNotExist:
             return Response({"error": "Người dùng không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
+        
+# View sản phẩm:
+from rest_framework import viewsets
+from .models import Product
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        # Bạn có thể lọc hoặc truy vấn các sản phẩm dựa trên một số tiêu chí, nếu cần.
+        return Product.objects.all()
+
+class CartOrderViewSet(viewsets.ModelViewSet):
+    queryset = CartOrder.objects.all()
+    serializer_class = CartOrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return CartOrder.objects.filter(user=self.request.user)  # Lọc theo người dùng
+
+class CartOrderDetailViewSet(viewsets.ModelViewSet):
+    queryset = CartOrder.objects.all()
+    serializer_class = CartOrderDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return CartOrder.objects.filter(id=self.kwargs['pk'], user=self.request.user)  # Lọc theo người dùng và ID đơn hàng
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Payment.objects.filter(order__user=self.request.user)  # Lọc theo người dùng

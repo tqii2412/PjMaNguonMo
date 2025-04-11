@@ -85,8 +85,12 @@ WSGI_APPLICATION = 'newproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'webtraicay',  
+        'USER': 'root', 
+        'PASSWORD': '2412qii', 
+        'HOST': '127.0.0.1',  
+        'PORT': '3306',  # Cổng mặc định của MySQL
     }
 }
 
@@ -149,5 +153,8 @@ AUTH_USER_MODEL = 'api.User'
 
 
 CORS_ALLOWED_ORIGINS = [
+    
     "http://localhost:8080",  # URL của frontend
+    "http://192.168.1.7:8080",
+    "http://127.0.0.1:8000",
 ]
