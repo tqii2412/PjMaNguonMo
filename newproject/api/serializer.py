@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import *
 from django.contrib.auth.password_validation import validate_password
+from django.db.models import F
 
 User = get_user_model()
 # Thêm vào file serializers.py (cùng với RegisterSerializer và LoginSerializer)
@@ -83,14 +84,67 @@ class ProductSerializer(serializers.ModelSerializer):
 
 # Serializer CartOrder, CartOrderDetail, Payment
 class CartOrderItemSerializer(serializers.ModelSerializer):
+    product_detail = ProductSerializer(source='product', read_only=True)
+
     class Meta:
         model = CartOrderItem
-        fields = ['product', 'quantity', 'price']
+        fields = ['order', 'product', 'product_detail', 'quantity', 'price']
+
+    def validate_quantity(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Số lượng phải lớn hơn 0.")
+        return value
+
+    def validate_price(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Giá sản phẩm phải lớn hơn 0.")
+        return value
+
+    def create(self, validated_data):
+        cart_order = validated_data['order']
+        product = validated_data['product']
+        quantity = validated_data['quantity']
+        price = product.price  # Lấy giá sản phẩm từ product
+
+        # Cập nhật tổng giá giỏ hàng
+        cart_order.total_price += quantity * price
+        cart_order.save()
+
+        return super().create(validated_data)
+
+    
+#CartOrderSerializer
+
+from rest_framework.exceptions import ValidationError
 
 class CartOrderSerializer(serializers.ModelSerializer):
+    items = CartOrderItemSerializer(many=True)  # Lồng CartOrderItemSerializer để trả về các mục giỏ hàng
+
     class Meta:
         model = CartOrder
-        fields = ['id', 'user', 'total_price', 'status', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'total_price', 'status', 'created_at', 'updated_at', 'items']  # Bao gồm trường 'items'
+
+    def create(self, validated_data):
+        user_id = validated_data.get('user')
+        total_price = validated_data.get('total_price', 0)
+
+        # Kiểm tra xem user có tồn tại không
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise ValidationError("Người dùng không tồn tại.")
+
+        # Tạo giỏ hàng mới
+        cart_order = CartOrder.objects.create(user=user, total_price=total_price, status='pending')
+
+        # Cập nhật lại tổng giá giỏ hàng nếu cần
+        items = CartOrderItem.objects.filter(order=cart_order)  # Lấy các mục trong giỏ hàng
+        cart_order.total_price = sum(item.quantity * item.price for item in cart_order.items.all()) or 0  # Tránh giá trị None
+        cart_order.save()
+
+        return cart_order
+
+
 
 class CartOrderDetailSerializer(serializers.ModelSerializer):
     items = CartOrderItemSerializer(many=True)

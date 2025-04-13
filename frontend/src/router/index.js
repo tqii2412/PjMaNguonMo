@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomePage from "../views/HomePage.vue";
 import UserLogin from "../components/UserLogin.vue";
 import UserRegister from "../components/UserRegister.vue";
+import CartPage from "../views/CartPage.vue";
 
 const routes = [
   {
@@ -22,15 +23,28 @@ const routes = [
   {
     path: "/about",
     name: "about",
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+    component: () => import("@/views/AboutView.vue")
   },
   {
     path: "/product/:id",
     name: "product-detail",
     component: () => import("../views/ProductDetail.vue")
-  }
-  
+  },
+  {
+    path: "/cart",
+    name: "cart",
+    component: CartPage,  // Đảm bảo thêm CartPage vào router
+    beforeEnter: (to, from, next) => {
+      const userId = localStorage.getItem("user_id");
+      if (!userId) {
+        // Bạn có thể thêm thông báo hoặc xử lý gì đó khi chuyển hướng
+        alert("Bạn cần đăng nhập để tiếp tục.");
+        next({ name: "login" });  // Nếu chưa đăng nhập, chuyển hướng đến login
+      } else {
+        next();  // Nếu đã đăng nhập, tiếp tục điều hướng
+      }
+    }
+  },
 ];
 
 const router = createRouter({

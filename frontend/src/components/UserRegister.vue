@@ -106,7 +106,7 @@ export default {
   max-width: 420px;
   background-color: #1e1e1e;
 }
-/* 👇 Highlight placeholder trắng hơn */
+
 ::placeholder {
   color: #ccc !important;
   opacity: 1 !important;

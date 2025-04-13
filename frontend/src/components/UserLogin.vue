@@ -53,15 +53,31 @@ export default {
           password: this.password,
         });
 
-        const token = response.data.token;
-        if (token) {
-          localStorage.setItem("token", token);
+        const accessToken = response.data.access;
+        const refreshToken = response.data.refresh;
+        const userId = response.data.user_id;
+
+        if (accessToken && userId) {
+          localStorage.setItem("token", accessToken);
+          localStorage.setItem("refresh_token", refreshToken);
+          localStorage.setItem("user_id", userId);
+
+          const userInfo = await axios.get(`http://localhost:8000/api/users/${userId}/`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          localStorage.setItem("username", userInfo.data.username);
         }
 
-        localStorage.setItem("user_id", this.username); // hoặc response.data.user_id nếu có
-
         alert("Đăng nhập thành công!");
+
+        // 👉 Điều hướng trước, sau đó reload để cập nhật navbar
         this.$router.push("/");
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
       } catch (error) {
         this.errorMessage =
           error.response?.data?.error || "Tên đăng nhập hoặc mật khẩu không đúng";
@@ -72,13 +88,46 @@ export default {
 </script>
 
 <style scoped>
+.login-container {
+  background-color: #1e1e1e;
+}
+
 .login-box {
   max-width: 400px;
   background-color: #1e1e1e;
 }
-/* 👇 Highlight placeholder trắng hơn */
+
 ::placeholder {
   color: #ccc !important;
   opacity: 1 !important;
+}
+
+.form-control {
+  background-color: #2c2f35;
+  color: white;
+  border: 1px solid #444;
+}
+
+.form-control:focus {
+  background-color: #444;
+  border-color: #17a2b8;
+}
+
+.btn-light {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+}
+
+.btn-light:hover {
+  background-color: #138496;
+}
+
+.text-decoration-underline {
+  text-decoration: underline;
+}
+
+.text-danger {
+  font-size: 0.875rem;
 }
 </style>
