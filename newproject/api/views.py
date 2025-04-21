@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
+
 # newproject/api/views.py
 User = get_user_model()
 
@@ -62,7 +63,7 @@ class UserDetailView(APIView):
             user = User.objects.get(pk=pk)  # Lấy người dùng theo pk
             serializer = UserSerializer(user)  # Serialize thông tin người dùng
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except user.DoesNotExist:
+        except User.DoesNotExist:
             return Response({"error": "Người dùng không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
         
 # View sản phẩm:
@@ -70,6 +71,7 @@ from rest_framework import viewsets
 from .models import Product
 
 class ProductViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
@@ -158,6 +160,39 @@ class AddProductToCartView(APIView):
 
         except Product.DoesNotExist:
             return Response({"error": "Sản phẩm không tồn tại."}, status=status.HTTP_400_BAD_REQUEST)
+        
+#Remove item:
+class RemoveProductFromCartView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, product_id, format=None):
+        user = request.user  # Lấy user đã đăng nhập từ request
+
+        try:
+            # Tìm giỏ hàng của người dùng
+            cart_order = CartOrder.objects.filter(user=user, status='pending').first()
+
+            if not cart_order:
+                return Response({"error": "Giỏ hàng không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Lọc các sản phẩm trong giỏ hàng có product_id tương ứng và trả về một danh sách CartOrderItem
+            cart_item = CartOrderItem.objects.filter(order=cart_order, product_id=product_id).first()
+
+            if not cart_item:
+                return Response({"error": "Sản phẩm không tồn tại trong giỏ hàng."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Cập nhật tổng giá giỏ hàng trước khi xóa sản phẩm
+            cart_order.total_price -= cart_item.quantity * cart_item.price
+            cart_order.save()
+
+            # Xóa sản phẩm khỏi giỏ hàng
+            cart_item.delete()
+
+            return Response({"message": "Sản phẩm đã được xóa khỏi giỏ hàng."}, status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 #CartOrderItem: 

@@ -3,7 +3,7 @@ import HomePage from "../views/HomePage.vue";
 import UserLogin from "../components/UserLogin.vue";
 import UserRegister from "../components/UserRegister.vue";
 import CartPage from "../views/CartPage.vue";
-
+import UserProfile from "../components/UserProfile.vue";
 const routes = [
   {
     path: "/",
@@ -33,17 +33,23 @@ const routes = [
   {
     path: "/cart",
     name: "cart",
-    component: CartPage,  // Đảm bảo thêm CartPage vào router
+    component: CartPage,  
     beforeEnter: (to, from, next) => {
       const userId = localStorage.getItem("user_id");
       if (!userId) {
-        // Bạn có thể thêm thông báo hoặc xử lý gì đó khi chuyển hướng
+        // thông báo
         alert("Bạn cần đăng nhập để tiếp tục.");
-        next({ name: "login" });  // Nếu chưa đăng nhập, chuyển hướng đến login
+        next({ name: "login" }); 
       } else {
-        next();  // Nếu đã đăng nhập, tiếp tục điều hướng
+        next();
       }
     }
+  },
+  {
+    path: "/user/:id", // Đường dẫn cho trang thông tin người dùng
+    name: "user-profile",
+    component: UserProfile,  
+    props: true,  
   },
 ];
 

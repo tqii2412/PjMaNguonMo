@@ -30,5 +30,6 @@ urlpatterns = [
     # Sản phẩm URLs
     path('', include(router.urls)),  # Thêm các URL từ router cho sản phẩm
 
-    
+    # Đường dẫn cho xóa sản phẩm khỏi giỏ hàng
+    path('cart/item/<int:product_id>/remove/', RemoveProductFromCartView.as_view(), name='cart-item-remove'),
 ]
