@@ -56,11 +56,11 @@ npm run serve
 
 python manage.py migrate
 
-7. Chạy Dự Án Django
-8. 
+###7. Chạy Dự Án Django
+ 
 python manage.py runserver
 
-9. Kiểm Tra Dự Án
+###8. Kiểm Tra Dự Án
 Mở trình duyệt và truy cập địa chỉ http://127.0.0.1:8000 để kiểm tra ứng dụng Django.
 Frontend (Vue.js) sẽ chạy trên cổng 8080, và bạn có thể truy cập nó tại http://127.0.0.1:8080.
 
