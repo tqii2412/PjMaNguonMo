@@ -89,7 +89,7 @@ DATABASES = {
         'USER': 'root', 
         'PASSWORD': '2412qii', 
         'HOST': '127.0.0.1',  
-        'PORT': '3306',  # Cổng mặc định của MySQL
+        'PORT': '3306',
     }
 }
 
@@ -156,10 +156,9 @@ AUTH_USER_MODEL = 'api.User'
 
 
 CORS_ALLOWED_ORIGINS = [
-    
-    "http://localhost:8080",  # URL của frontend
-    "http://192.168.1.5:8080",
     "http://127.0.0.1:8000",
+    "http://localhost:8080",
+    "http://192.168.1.6:8080",
 ]
 
 from corsheaders.defaults import default_headers
