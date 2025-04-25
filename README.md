@@ -30,8 +30,11 @@ pip install -r requirements.txt
 a.Tạo database trong MySQL:
 CREATE DATABASE fruit_shop;
 b. Cập nhật thông tin kết nối database trong tệp settings.py của Django:
+
 DATABASES = {
+
     'default': {
+    
         'ENGINE': 'django.db.backends.mysql',
         
         'NAME': 'fruit_shop',
