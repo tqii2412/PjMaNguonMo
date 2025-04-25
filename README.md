@@ -33,11 +33,17 @@ b. Cập nhật thông tin kết nối database trong tệp settings.py của Dj
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+        
         'NAME': 'fruit_shop',
+        
         'USER': 'your_mysql_user',
+        
         'PASSWORD': 'your_mysql_password',
+        
         'HOST': 'localhost',
+        
         'PORT': '3306',
+        
     }
 }
 
